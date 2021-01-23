@@ -14,7 +14,6 @@
   hosts: gitlab_hosts
   become: true
   gather_facts: false
-  vars_files: ../vars.yml
 
   pre_tasks:
     - name: Wait connection
