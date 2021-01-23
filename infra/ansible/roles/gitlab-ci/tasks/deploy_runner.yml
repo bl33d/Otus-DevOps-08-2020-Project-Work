@@ -1,24 +1,8 @@
+---
 - name: Create directories
   file:
     path: "/srv/gitlabrunner-{{ '%02d' | format(item) }}"
     state: directory
-  loop: "{{ range(0, runners_count)|list }}"
-
-- name: Deploy Gitlab runner image
-  docker_container:
-    container_default_behavior: compatibility
-    name: "gitlab-runner-{{ '%02d' | format(item) }}"
-    image: gitlab/gitlab-runner:latest
-    state: started
-    restart_policy: always
-    volumes:
-      - "/srv/gitlabrunner/config-{{ '%02d' | format(item) }}:/etc/gitlab-runner"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    networks:
-      - name: gitlab-net
-        aliases:
-          - "gitlab-runner-{{ '%02d' | format(item) }}"
-    purge_networks: true
   loop: "{{ range(0, runners_count)|list }}"
 
 - name: Wait for gitlab configure
@@ -37,22 +21,52 @@
     timeout: 600
     search_regex: 'INFO: Report handlers complete'
 
-- name: Register runner
-  command: >
-    docker exec -it gitlab-runner-{{ '%02d' | format(item) }} gitlab-runner register \
-        --url http://gitlab-ci/ \
-        --non-interactive \
-        --locked=false \
-        --name DockerRunner-{{ '%02d' | format(item) }} \
-        --executor docker \
-        --docker-image alpine:latest \
-        --registration-token {{ gitlab_runner_token }} \
-        --tag-list "linux,xenial,ubuntu,docker" \
+- name: Register Gitlab runner
+  docker_container:
+    container_default_behavior: compatibility
+    name: "gitlab-runner-register-{{ '%02d' | format(item) }}"
+    image: gitlab/gitlab-runner:latest
+    state: started
+    auto_remove: true
+    volumes:
+      - "/srv/gitlabrunner-{{ '%02d' | format(item) }}/config:/etc/gitlab-runner"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - name: gitlab-net
+        aliases:
+          - "gitlab-runner-register-{{ '%02d' | format(item) }}"
+    purge_networks: true
+    command: >
+        register 
+        --url http://gitlab-ci/ 
+        --non-interactive 
+        --locked=false 
+        --name DockerRunner-{{ '%02d' | format(item) }} 
+        --executor docker 
+        --docker-image alpine:latest 
+        --registration-token {{ gitlab_runner_token }} 
+        --tag-list "docker" 
         --run-untagged
-  changed_when: false
+  loop: "{{ range(0, runners_count)|list }}"
+
+- name: Deploy Gitlab runner
+  docker_container:
+    container_default_behavior: compatibility
+    name: "gitlab-runner-{{ '%02d' | format(item) }}"
+    image: gitlab/gitlab-runner:latest
+    state: started
+    restart_policy: always
+    volumes:
+      - "/srv/gitlabrunner/config-{{ '%02d' | format(item) }}:/etc/gitlab-runner"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - name: gitlab-net
+        aliases:
+          - "gitlab-runner-{{ '%02d' | format(item) }}"
+    purge_networks: true
   loop: "{{ range(0, runners_count)|list }}"
 
 - debug:
     msg: |
-      "Gitlab IP: {{ ansible_host }}"
-      "token: {{ gitlab_runner_token }}"
+      "Gitlab address: http://{{ ansible_host }}.xip.io"
+      "Gitlab token: {{ gitlab_runner_token }}"
