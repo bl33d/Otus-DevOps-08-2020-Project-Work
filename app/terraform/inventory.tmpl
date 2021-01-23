@@ -1,0 +1,4 @@
+[app_hosts]
+%{ for ip in instance_ip ~}
+app-host ansible_host=${ip}
+%{ endfor ~}
