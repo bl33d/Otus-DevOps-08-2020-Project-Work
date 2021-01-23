@@ -35,6 +35,5 @@ backend.tf
 */ansible/inventory
 
 # Ignore any ansible roles, exclude gitlab-ci
-infra/ansible/roles
+*/ansible/roles
 !infra/ansible/roles/gitlab-ci
-
