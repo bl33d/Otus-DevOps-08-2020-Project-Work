@@ -1,1 +1,2 @@
 * infra/ansible - сейчас секреты лежат в открытом виде, с этим нужно что-то сделать
+* Мы запускаем terraform через ansible, поэтому у ansible есть весь output terraform. Возможно нам стоит переделать способ генерации inventory ansible.
