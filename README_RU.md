@@ -49,6 +49,10 @@ terraform {
 }
 ```
 
+### 4. Terrafrom init
+
+Перейтите в директорию *infra/terraform* и выполните команду `terraform init`
+
 ## Ansible
 
 Все действия производятся в директории *infra/ansible*
