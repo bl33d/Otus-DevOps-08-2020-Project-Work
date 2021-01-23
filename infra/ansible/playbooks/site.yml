@@ -5,6 +5,7 @@
   tasks:
     - name: Deploy infra with terraform
       terraform:
+        force_init: true
         project_path: ../../terraform
         state: present
     - meta: refresh_inventory
