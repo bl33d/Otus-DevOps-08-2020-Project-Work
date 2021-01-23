@@ -1,0 +1,4 @@
+---
+gitlab_runner_token: Dfhju39dbklbnci33cju
+gitlab_root_password: 123qwe321
+runners_count: 1
