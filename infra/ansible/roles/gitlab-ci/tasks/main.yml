@@ -1,0 +1,4 @@
+---
+- include_tasks: prepare.yml
+- include_tasks: deploy_gitlab.yml
+- include_tasks: deploy_runner.yml
