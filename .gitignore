@@ -32,9 +32,9 @@ override.tf.json
 backend.tf
 
 # Ignore dynamic ansible inventory
-infra/ansible/inventory
+*/ansible/inventory
 
 # Ignore any ansible roles, exclude gitlab-ci
 infra/ansible/roles
 !infra/ansible/roles/gitlab-ci
-infra/ansible/roles
+
