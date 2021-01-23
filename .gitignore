@@ -36,3 +36,4 @@ infra/ansible/inventory
 
 # Ignore any ansible roles, exclude gitlab-ci
 !infra/ansible/roles/gitlab-ci
+infra/ansible/roles
