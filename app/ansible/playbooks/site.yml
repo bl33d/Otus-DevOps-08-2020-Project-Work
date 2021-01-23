@@ -1,0 +1,34 @@
+---
+- name: Deploy app infrastructure
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Deploy infra with terraform
+      terraform:
+        force_init: true
+        project_path: ../../terraform
+        state: present
+    - meta: refresh_inventory
+
+- name: Deploy docker on app infrastructure
+  hosts: app_hosts
+  become: true
+  gather_facts: false
+
+  pre_tasks:
+    - name: Wait connection
+      wait_for_connection:
+    - name: Gather facts
+      setup:
+    - name: Install Python3-pip
+      apt:
+        name: python3-pip
+        update_cache: true
+    - name: Install python module "docker"
+      pip:
+        name: docker
+
+  roles:
+    - role: geerlingguy.docker
+      vars:
+        docker_users: ubuntu
