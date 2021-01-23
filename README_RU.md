@@ -48,3 +48,19 @@ terraform {
     }
 }
 ```
+
+## Ansible
+
+Все действия производятся в директории *infra/ansible*
+
+### 1. Установите необходимые зависимости
+
+`ansible-galaxy install -r requirements.yml`
+
+### 2. Задайте свои значения в переменный в vars.yml
+
+| Переменная | Комментарий | Пример |
+|---|---|---|
+| gitlab_root_password | Пароль root для входа в Gitlab_CI | 123qwe123 |
+| gitlab_runner_token | Токен для регистрации runner'ов | Dfhju39dbklbnci33cju |
+| | | |
