@@ -6,7 +6,7 @@
     image: gitlab/gitlab-ce:latest
     state: started
     restart_policy: always
-    hostname: gitlab.example.net
+    hostname: "{{ ansible_host }}.xip.io"
     ports:
       - '80:80'
       - '443:443'
@@ -22,6 +22,6 @@
     purge_networks: true
     env:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://{{ ansible_host }}'
+        external_url 'http://{{ ansible_host }}.xip.io'
         gitlab_rails['initial_root_password'] = '{{ gitlab_root_password }}'
         gitlab_rails['initial_shared_runners_registration_token'] = '{{ gitlab_runner_token }}'
