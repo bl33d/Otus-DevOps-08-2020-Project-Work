@@ -1,0 +1,7 @@
+version: '3.3'
+services:
+
+  ui:
+    volumes:
+      - '/builds/root/Otus-DevOps-08-2020-Project-Work/app/src/search_engine_ui/tests:/tests'
+      - '/builds/root/Otus-DevOps-08-2020-Project-Work/app/src/search_engine_ui/requirements-test.txt:/ui/requirements-test.txt'

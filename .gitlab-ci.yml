@@ -1,0 +1,45 @@
+# image: ruby:2.4.2
+
+variables:
+  DATABASE_URL: "mongodb://mongo/user_posts"
+  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_TLS_CERTDIR: ""
+
+services:
+  - docker:19.03.13-dind
+
+stages:
+  # - build
+  - test
+  # - review
+  # - production
+
+# -------------
+# Test
+# -------------
+test_ui_job:
+  stage: test
+  image: docker/compose:1.28.0
+  variables:
+    COMPOSE_FILE: "app/src/docker-compose.yml:app/src/search_engine_ui/tests/docker-compose-tests.yml"
+  script:
+    - docker-compose up -d ui
+    - docker exec -w / src_ui_1 pip install -r /ui/requirements-test.txt
+    - docker exec -w / src_ui_1 coverage run -m unittest discover -s tests/
+    - docker exec -w / src_ui_1 coverage report --include ui/ui.py
+    - docker-compose down
+
+test_crawler_job:
+  stage: test
+  image: docker/compose:1.28.0
+  variables:
+    COMPOSE_FILE: "app/src/docker-compose.yml:app/src/search_engine_crawler/tests/docker-compose-tests.yml"
+  script:
+    # - docker load -i images/crawler.tar
+    # - docker load -i images/ui.tar
+    - docker-compose up -d crawler
+    - docker exec -w / src_crawler_1 ls -l / /crawler
+    - docker exec -w / src_crawler_1 pip install -r /crawler/requirements-test.txt
+    - docker exec -w / src_crawler_1 coverage run -m unittest discover -s tests/
+    - docker exec -w / src_crawler_1 coverage report --include crawler/crawler.py
+    - docker-compose down
