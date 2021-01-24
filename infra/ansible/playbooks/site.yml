@@ -19,8 +19,8 @@
           skip_credentials_validation: "true"
     - meta: refresh_inventory
 
-- name: Deploy docker and gitlab
-  hosts: gitlab_hosts
+- name: Deploy docker
+  hosts: all
   become: true
   gather_facts: false
 
@@ -41,4 +41,10 @@
     - role: geerlingguy.docker
       vars:
         docker_users: ubuntu
+
+- name: Deploy gitlab-ci
+  hosts: gitlab_hosts
+  become: true
+
+  roles:
     - role: gitlab-ci
