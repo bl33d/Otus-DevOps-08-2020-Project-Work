@@ -8,6 +8,15 @@
         force_init: true
         project_path: ../../terraform
         state: present
+        backend_config:
+          endpoint  : "storage.yandexcloud.net"
+          bucket    : "{{ terraform_bucket_name }}"
+          region    : "us-east-1"
+          key       : "{{ terraform_bucket_state_file_name }}"
+          access_key: "{{ terraform_bucket_access_key }}"
+          secret_key: "{{ terraform_bucket_secret_key }}"
+          skip_region_validation     : "true"
+          skip_credentials_validation: "true"
     - meta: refresh_inventory
 
 - name: Deploy docker and gitlab
