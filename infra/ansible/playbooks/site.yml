@@ -1,25 +1,25 @@
 ---
-- name: Deploy infra
+- name: Deploy YC infra
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Deploy infra with terraform
+    - name: Deploy YC infra with terraform
       terraform:
         force_init: true
         project_path: ../../terraform
-        state: present
+        state: "{{ tf_state }}"
         backend_config:
           endpoint  : "storage.yandexcloud.net"
-          bucket    : "{{ terraform_bucket_name }}"
+          bucket    : "{{ tf_bucket_name }}"
           region    : "us-east-1"
-          key       : "{{ terraform_bucket_state_file_name }}"
-          access_key: "{{ terraform_bucket_access_key }}"
-          secret_key: "{{ terraform_bucket_secret_key }}"
+          key       : "{{ tf_bucket_state_file_name }}"
+          access_key: "{{ tf_bucket_access_key }}"
+          secret_key: "{{ tf_bucket_secret_key }}"
           skip_region_validation     : "true"
           skip_credentials_validation: "true"
     - meta: refresh_inventory
 
-- name: Deploy docker
+- name: Deploy python docker modules
   hosts: all
   become: true
   gather_facts: false
@@ -29,13 +29,15 @@
       wait_for_connection:
     - name: Gather facts
       setup:
-    - name: Install Python3-pip
+    - name: Install python-pip
       apt:
         name: python3-pip
         update_cache: true
-    - name: Install python module "docker"
+    - name: Install python modules docker and docker-compose
       pip:
-        name: docker
+        name: 
+          - docker
+          - docker-compose
 
   roles:
     - role: geerlingguy.docker
@@ -48,3 +50,11 @@
 
   roles:
     - role: gitlab-ci
+
+- name: Deploy monitoring
+  hosts: monitoring_hosts
+  become: true
+
+  tasks:
+    - name: Deploy monitoring system (Prome and Grafana)
+      include_tasks: monitoring.yml
