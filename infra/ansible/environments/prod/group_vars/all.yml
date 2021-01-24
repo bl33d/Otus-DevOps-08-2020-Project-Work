@@ -3,7 +3,9 @@ gitlab_runner_token: Dfhju39dbklbnci33cju
 gitlab_root_password: 123qwe321
 runners_count: 1
 
-terraform_bucket_name: terraform-crawler-state
-terraform_bucket_state_file_name: terraform-crawler-infra.tfstate
-terraform_bucket_access_key: <ACCESS_KEY>
-terraform_bucket_secret_key: <SECRET_KEY>
+tf_state: present
+
+tf_bucket_name: terraform-crawler-state
+tf_bucket_state_file_name: terraform-crawler-infra.tfstate
+tf_bucket_access_key: <ACCESS_KEY>
+tf_bucket_secret_key: <SECRET_KEY>
