@@ -6,18 +6,41 @@
     mode: '0755'
   with_items:
     - /srv/prometheus/config
-    - /srv/promethus/compose
+    - /srv/monitoring
+    - /srv/grafana/provisioning/datasources
+    - /srv/grafana/provisioning/dashboards
+    - /srv/grafana/dashboards
 
-- name: Create docker-compose for prometheus
+- name: Create docker-compose project
   template:
     src: ../templates/docker-compose-monitoring.yml.j2
-    dest: /srv/promethus/compose/docker-compose.yml
+    dest: /srv/monitoring/docker-compose.yml
 
-- name: Create prometheus config file
+- name: Set prometheus config file
   template:
     src: ../templates/prometheus.yml.j2
     dest: /srv/prometheus/config/prometheus.yml
 
-- name: run docker-compose up
+- name: Set grafana config file
+  template:
+    src: ../templates/grafana.ini.j2
+    dest: /srv/grafana/grafana.ini
+
+- name: Set grafana default datasource
+  template:
+    src: ../templates/grafana-prov-datasources-all.yml.j2
+    dest: /srv/grafana/provisioning/datasources/all.yml
+
+- name: Set grafana default dashboards
+  template:
+    src: ../templates/grafana-prov-dashboard-default.yml.j2
+    dest: /srv/grafana/provisioning/dashboards/default.yml
+
+- name: Create grafana node exporter dashboard
+  get_url:
+    url: https://grafana.com/api/dashboards/1860/revisions/21/download
+    dest: /srv/grafana/dashboards/grafana-node-exporter-full.json
+
+- name: Run docker-compose up
   docker_compose:
-    project_src: /srv/promethus/compose/
+    project_src: /srv/monitoring/

@@ -7,5 +7,9 @@ scrape_configs:
     static_configs:
       - targets:
         - 'node-exporter:9100'
+        labels:
+          instance: "monitoring-node-01"
       - targets:
         - 'prometheus:9090'
+        labels:
+          instance: "prometheus-01"
