@@ -33,7 +33,7 @@
     state: started
     restart_policy: always
     volumes:
-      - "/srv/gitlabrunner/config-{{ '%02d' | format(item) }}:/etc/gitlab-runner"
+      - "/srv/gitlabrunner-{{ '%02d' | format(item) }}/config:/etc/gitlab-runner"
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
       - name: gitlab-net
