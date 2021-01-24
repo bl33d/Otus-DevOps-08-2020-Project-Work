@@ -1,0 +1,62 @@
+version: '3.3'
+services:
+
+  mongodb:
+    image: mongo:3.2
+    volumes:
+      - mongodb:/data/db
+    networks:
+      back_net:
+        aliases: 
+          - mongodb
+
+  rabbitmq:
+    image: rabbitmq:alpine
+    volumes:
+      - rabbit-vol:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=${MQ_PASS:-12345678}
+    networks:
+      back_net:
+        aliases:
+          - rabbitmq
+
+  ui:
+    build:
+      context: ./search_engine_ui
+    ports:
+      - 80:8000
+    environment:
+      - MONGO=mongodb
+      - MONGO_PORT=27017
+    networks:
+      back_net:
+        aliases:
+          - app-ui
+      front_net:
+
+  crawler:
+    build:
+      context: ./search_engine_crawler
+    environment:
+      - MONGO=mongodb
+      - MONGO_PORT=27017
+      - RMQ_HOST=rabbitmq
+      - RMQ_QUEUE=queue
+      - RMQ_USERNAME=user
+      - RMQ_PASSWORD=${MQ_PASS:-12345678}
+      - EXCLUDE_URLS='.*github.com'
+    networks:
+      back_net:
+        aliases:
+          - app-crawler
+      front_net:
+
+volumes:
+  mongodb:
+  rabbit-vol:
+
+networks:
+  back_net:
+  front_net:
