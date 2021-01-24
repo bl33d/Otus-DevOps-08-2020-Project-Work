@@ -1,8 +1,8 @@
 FROM python:3.6.0-alpine
 WORKDIR /ui
-ADD requirements.txt /ui
+COPY requirements.txt /ui
 RUN pip install -r requirements.txt
-ADD ./ui/ /ui
+COPY ./ui/ /ui
 EXPOSE  8000
 ENV MONGO mongodb
 ENV MONGO_PORT 27017

@@ -4,7 +4,7 @@ resource "local_file" "AnsibleInventory" {
     instance_ip = yandex_compute_instance.app_instance[*].network_interface.0.nat_ip_address,
   }
   )
-  filename = "../ansible/inventory"
+  filename = "../ansible/environments/prod/inventory"
   directory_permission = "0755"
   file_permission = "0644"
 }
