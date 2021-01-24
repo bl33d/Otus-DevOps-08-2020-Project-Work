@@ -1,0 +1,9 @@
+---
+- name: Copy app sources on remote host
+  copy:
+    src: ../../src/
+    dest: /srv/app
+  
+- name: Deploy app images with docker-compose
+  docker_compose:
+    project_src: /srv/app

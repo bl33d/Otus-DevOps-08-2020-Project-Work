@@ -4,4 +4,4 @@ subnet_id                = "e9b8jq70j2bafkcv156b" # YC subnet id, SET YOURS
 zone                     = "ru-central1-a" # YC availability zone, change if needed
 public_key_path          = "~/.ssh/crawler-project.pub" # path to ssh pub key for VM instances, SET YOURS
 
-image_id                 = "fd8fjtn3mj2kfe7h6f0r" # Ubuntu 18.04, DONT CHANGE IT
+image_id                 = "fd8vmcue7aajpmeo39kk" # Ubuntu 20.04, DONT CHANGE IT
