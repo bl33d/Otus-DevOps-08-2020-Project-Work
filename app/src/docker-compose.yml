@@ -55,6 +55,8 @@ services:
         aliases:
           - app-ui
       front_net:
+    depends_on:
+      - mongodb
 
   crawler:
     build:
@@ -78,6 +80,9 @@ services:
         aliases:
           - app-crawler
       front_net:
+    depends_on:
+      - rabbitmq
+      - mongodb
 
 volumes:
   mongodb:

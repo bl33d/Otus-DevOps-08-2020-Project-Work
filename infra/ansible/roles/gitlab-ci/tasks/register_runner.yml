@@ -21,11 +21,12 @@
     purge_networks: true
     command: >
         register 
-        --url http://gitlab-ci/ 
+        --url "http://{{ ansible_host }}.xip.io"
         --non-interactive 
         --locked=false 
         --name DockerRunner-{{ '%02d' | format(item) }} 
-        --executor docker 
+        --executor docker
+        --docker-privileged
         --docker-image alpine:latest 
         --registration-token {{ gitlab_runner_token }} 
         --tag-list "docker" 
