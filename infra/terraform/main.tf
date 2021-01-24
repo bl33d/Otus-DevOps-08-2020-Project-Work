@@ -7,10 +7,11 @@ provider "yandex" {
 
 resource "yandex_compute_instance" "gitlab_instance" {
     name = "gitlab"
+    allow_stopping_for_update = true
 
     resources {
-    cores  = 2
-    memory = 4
+    cores  = 4
+    memory = 10
     }
 
     metadata = {
