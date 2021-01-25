@@ -47,3 +47,11 @@
   tasks:
     - name: Deploy app images
       include_tasks: app.yml
+
+- name: Configure monitoring
+  hosts: monitoring_hosts
+  become: true
+  tasks:
+
+    - name: Run monitoring configure tasks
+      include_tasks: monitoring.yml
