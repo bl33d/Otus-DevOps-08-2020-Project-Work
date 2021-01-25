@@ -10,6 +10,10 @@ tf_bucket_secret_key: <SECRET_KEY>
 
 prometheus_scrape_jobs: |
   - targets:
+    - "{{ hostvars['app-host'].ansible_host }}:9100"
+    labels:
+      instance: "app_node_exporter"
+  - targets:
     - "{{ hostvars['app-host'].ansible_host }}:80"
     labels:
       instance: "app-ui"

@@ -13,25 +13,40 @@
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
-    "id": 1,
     "links": [],
     "panels": [{
             "aliasColors": {
                 "Pages": "super-light-orange"
             },
-            "bars": true,
+            "bars": false,
             "dashLength": 10,
             "dashes": false,
             "datasource": "prometheus-01",
-            "decimals": null,
+            "decimals": 0,
             "fieldConfig": {
                 "defaults": {
-                    "custom": {}
+                    "custom": {
+                        "align": null,
+                        "filterable": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [{
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
                 },
                 "overrides": []
             },
-            "fill": 1,
-            "fillGradient": 0,
+            "fill": 3,
+            "fillGradient": 2,
             "gridPos": {
                 "h": 8,
                 "w": 12,
@@ -51,7 +66,7 @@
                 "total": true,
                 "values": true
             },
-            "lines": false,
+            "lines": true,
             "linewidth": 1,
             "nullPointMode": "null",
             "options": {
@@ -59,7 +74,7 @@
             },
             "percentage": false,
             "pluginVersion": "7.3.7",
-            "pointradius": 2,
+            "pointradius": 6,
             "points": false,
             "renderer": "flot",
             "seriesOverrides": [],
@@ -67,11 +82,10 @@
             "stack": false,
             "steppedLine": false,
             "targets": [{
-                "expr": "web_pages_served",
-                "format": "time_series",
-                "instant": false,
+                "expr": "round(rate(web_pages_served[1m]) * 100)",
                 "interval": "",
                 "legendFormat": "Pages",
+                "queryType": "randomWalk",
                 "refId": "A"
             }],
             "thresholds": [],
@@ -81,7 +95,7 @@
             "title": "UI - Number of pages served by frontend",
             "tooltip": {
                 "shared": true,
-                "sort": 0,
+                "sort": 1,
                 "value_type": "individual"
             },
             "transformations": [],
@@ -94,8 +108,9 @@
                 "values": []
             },
             "yaxes": [{
+                    "decimals": 0,
                     "format": "short",
-                    "label": "",
+                    "label": "Pages",
                     "logBase": 1,
                     "max": null,
                     "min": "0",
@@ -167,7 +182,7 @@
             "targets": [{
                 "expr": "histogram_quantile(0.95, sum(rate(crawler_page_parse_time_bucket[5m])) by (le))",
                 "interval": "",
-                "legendFormat": "",
+                "legendFormat": "Time",
                 "refId": "A"
             }],
             "thresholds": [],
@@ -189,7 +204,9 @@
                 "values": []
             },
             "yaxes": [{
-                    "format": "short",
+                    "$$hashKey": "object:1600",
+                    "decimals": null,
+                    "format": "s",
                     "label": null,
                     "logBase": 1,
                     "max": null,
@@ -197,6 +214,7 @@
                     "show": true
                 },
                 {
+                    "$$hashKey": "object:1601",
                     "format": "short",
                     "label": null,
                     "logBase": 1,
@@ -304,7 +322,8 @@
                 "values": []
             },
             "yaxes": [{
-                    "format": "short",
+                    "$$hashKey": "object:1968",
+                    "format": "s",
                     "label": null,
                     "logBase": 1,
                     "max": null,
@@ -312,6 +331,7 @@
                     "show": true
                 },
                 {
+                    "$$hashKey": "object:1969",
                     "format": "short",
                     "label": null,
                     "logBase": 1,
@@ -399,14 +419,17 @@
                 "values": []
             },
             "yaxes": [{
-                    "format": "short",
-                    "label": null,
+                    "$$hashKey": "object:1524",
+                    "decimals": null,
+                    "format": "ms",
+                    "label": "",
                     "logBase": 1,
                     "max": null,
                     "min": null,
                     "show": true
                 },
                 {
+                    "$$hashKey": "object:1525",
                     "format": "short",
                     "label": null,
                     "logBase": 1,
@@ -469,10 +492,10 @@
             "stack": false,
             "steppedLine": false,
             "targets": [{
-                "expr": "crawler_pages_parsed",
+                "expr": "rate(crawler_pages_parsed[1m])",
                 "interval": "",
                 "intervalFactor": 1,
-                "legendFormat": "{{job}} pages parsed",
+                "legendFormat": "pages per seconds",
                 "refId": "A"
             }],
             "thresholds": [],
@@ -494,7 +517,8 @@
                 "values": []
             },
             "yaxes": [{
-                    "format": "short",
+                    "$$hashKey": "object:1452",
+                    "format": "pages",
                     "label": "Pages",
                     "logBase": 1,
                     "max": null,
@@ -502,6 +526,7 @@
                     "show": true
                 },
                 {
+                    "$$hashKey": "object:1453",
                     "format": "short",
                     "label": "",
                     "logBase": 1,
@@ -524,12 +549,12 @@
         "list": []
     },
     "time": {
-        "from": "now-15m",
+        "from": "now-5m",
         "to": "now"
     },
     "timepicker": {},
     "timezone": "",
     "title": "App Crawler",
     "uid": "FhuRcCfGz",
-    "version": 3
+    "version": 1
 }
