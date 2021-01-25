@@ -13,3 +13,7 @@ scrape_configs:
         - 'prometheus:9090'
         labels:
           instance: "prometheus-01"
+      - targets:
+        - "{{ hostvars['gitlab-host'].ansible_host }}:9100"
+        labels:
+          instance: "gitlab-ci-01"
