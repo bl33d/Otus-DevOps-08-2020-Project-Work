@@ -48,8 +48,6 @@ services:
     environment:
       - MONGO=mongodb
       - MONGO_PORT=27017
-    depends_on:
-      - mongodb
     networks:
       back_net:
         aliases:
@@ -71,10 +69,6 @@ services:
       - RMQ_USERNAME=user
       - RMQ_PASSWORD=${MQ_PASS:-12345678}
       - EXCLUDE_URLS='.*github.com'
-    depends_on:
-      - mongodb
-      - rabbitmq
-      - ui
     networks:
       back_net:
         aliases:
