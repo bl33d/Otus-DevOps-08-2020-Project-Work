@@ -12,6 +12,7 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention=1d'
+      - '--web.enable-lifecycle'
     networks:
       - front_net
       - back_net
