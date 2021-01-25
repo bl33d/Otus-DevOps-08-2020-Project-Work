@@ -1,4 +1,9 @@
 [app_hosts]
-%{ for ip in instance_ip ~}
+%{ for ip in instance_app_ip ~}
 app-host ansible_host=${ip}
+%{ endfor ~}
+
+[monitoring_hosts]
+%{ for ip in instance_monitoring_ip ~}
+monitoring-host ansible_host=${ip}
 %{ endfor ~}
