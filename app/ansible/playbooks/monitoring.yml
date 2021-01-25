@@ -1,0 +1,15 @@
+---
+- name: Create grafana app crawler dashboard
+  copy:
+    src: ../files/grafana-app-crawler.json
+    dest: /srv/grafana/dashboards/grafana-app-crawler.json
+
+- name: Add scrape jobs to prometheus
+  lineinfile:
+    dest: /srv/prometheus/config/prometheus.yml
+    line: "{{ prometheus_scrape_jobs | indent(6, true) }}"
+
+- name: Reload prometheus configuration
+  uri:
+    url: "http://{{ hostvars['monitoring-host'].ansible_host }}:9090/-/reload"
+    method: POST
