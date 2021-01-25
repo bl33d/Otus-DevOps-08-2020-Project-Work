@@ -20,6 +20,7 @@
   template:
     src: ../templates/prometheus.yml.j2
     dest: /srv/prometheus/config/prometheus.yml
+  register: prometheus_config
 
 - name: Set grafana config file
   template:
@@ -44,3 +45,9 @@
 - name: Run docker-compose up
   docker_compose:
     project_src: /srv/monitoring/
+
+- name: Reload prometheus configuration
+  uri:
+    url: "http://{{ hostvars['monitoring-host'].ansible_host }}:9090/-/reload"
+    method: POST
+  when: prometheus_config.changed
