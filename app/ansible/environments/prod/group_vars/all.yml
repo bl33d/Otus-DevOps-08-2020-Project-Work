@@ -7,3 +7,13 @@ tf_bucket_name: terraform-crawler-state
 tf_bucket_state_file_name: terraform-crawler-app.tfstate
 tf_bucket_access_key: <ACCESS_KEY>
 tf_bucket_secret_key: <SECRET_KEY>
+
+prometheus_scrape_jobs: |
+  - targets:
+    - "{{ hostvars['app-host'].ansible_host }}:80"
+    labels:
+      instance: "app-ui"
+  - targets:
+    - "{{ hostvars['app-host'].ansible_host }}:8001"
+    labels:
+      instance: "app-crawler"
