@@ -1,0 +1,23 @@
+---
+- name: Deploy node_exporter docker image
+  docker_container:
+    container_default_behavior: compatibility
+    name: node_exporter
+    image: prom/node-exporter:v1.0.1
+    state: started
+    restart_policy: always
+    ports:
+      - '9100:9100'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - name: gitlab-net
+        aliases:
+          - node_exporter
+    purge_networks: true
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
