@@ -1,25 +1,19 @@
-# image: ruby:2.4.2
-
 variables:
-  DATABASE_URL: "mongodb://mongo/user_posts"
   DOCKER_HOST: "tcp://docker:2375"
   DOCKER_TLS_CERTDIR: ""
 
-services:
-  - docker:19.03.13-dind
-
 stages:
-  # - build
   - test
-  # - review
-  # - production
+  - deploy
 
 # -------------
 # Test
 # -------------
-test_ui_job:
+test_ui:
   stage: test
   image: docker/compose:1.28.0
+  services:
+    - docker:19.03.13-dind
   variables:
     COMPOSE_FILE: "app/src/docker-compose.yml:app/src/search_engine_ui/tests/docker-compose-tests.yml"
   script:
@@ -29,17 +23,43 @@ test_ui_job:
     - docker exec -w / src_ui_1 coverage report --include ui/ui.py
     - docker-compose down
 
-test_crawler_job:
+test_crawler:
   stage: test
   image: docker/compose:1.28.0
+  services:
+    - docker:19.03.13-dind
   variables:
     COMPOSE_FILE: "app/src/docker-compose.yml:app/src/search_engine_crawler/tests/docker-compose-tests.yml"
   script:
-    # - docker load -i images/crawler.tar
-    # - docker load -i images/ui.tar
     - docker-compose up -d crawler
     - docker exec -w / src_crawler_1 ls -l / /crawler
     - docker exec -w / src_crawler_1 pip install -r /crawler/requirements-test.txt
     - docker exec -w / src_crawler_1 coverage run -m unittest discover -s tests/
     - docker exec -w / src_crawler_1 coverage report --include crawler/crawler.py
     - docker-compose down
+
+deloy_prod:
+  stage: deploy
+  image: tomorrowcanw8/terransible:1.7
+  before_script:
+    - mkdir $HOME/yandex-cloud && echo $terraform_bot_key > $HOME/yandex-cloud/terraform-bot-key.json
+    - mkdir $HOME/.ssh && cp $crawler_project $HOME/.ssh/crawler-project && chmod 600 $HOME/.ssh/crawler-project
+    - cp keys/crawler-project.pub $HOME/.ssh/ && chmod 644 $HOME/.ssh/crawler-project.pub
+    - chmod 755 app/ansible/
+  script:
+    - terraform -v
+    - ansible --version
+    - cd app/ansible
+    - ansible-galaxy install -r requirements.yml
+    - ansible-playbook playbooks/site.yml --private-key=$HOME/.ssh/crawler-project -e tf_bucket_access_key=$tf_bucket_access_key -e tf_bucket_secret_key=$tf_bucket_secret_key
+    - cd -
+    - DYNAMIC_ENVIRONMENT_URL=$(cat app/ansible/environments/prod/inventory | awk '/app-host/ {print $2}' | awk -F = '{print "http://"$2".xip.io"}')
+    - echo "DYNAMIC_ENVIRONMENT_URL=$DYNAMIC_ENVIRONMENT_URL" >> deploy.env
+  artifacts:
+    reports:
+      dotenv: deploy.env
+  environment:
+    name: production
+    url: $DYNAMIC_ENVIRONMENT_URL
+  when: manual
+  
