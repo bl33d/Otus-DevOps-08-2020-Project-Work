@@ -69,6 +69,7 @@ services:
       - RMQ_USERNAME=user
       - RMQ_PASSWORD=${MQ_PASS:-12345678}
       - EXCLUDE_URLS='.*github.com'
+    restart: on-failure
     networks:
       back_net:
         aliases:
