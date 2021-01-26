@@ -1,8 +1,25 @@
-# Предварительная настройка
+# Инфраструктура
 
-## Terraform
+## Предварительная настройка
 
-### 1. Задайте свои переменные в infra/terraform/terraform.tfvars
+## Необходимое ПО
+
+Ниже указан список необходимого ПО для запуска проекта и версии на которых проект точно работает.
+
+* ansible (2.10.4)
+* terraform (0.13.5)
+
+## Развертывание инфраструктуры
+
+### 1. Создайте пару ssh ключей с названием crawler-project
+
+`ssh-keygen -C crawler-project -f ~/.ssh/crawler-project `
+
+Скопируйте публичный ключ crawler-project.pub в директорию /keys/ *с заменой существующего*
+
+Сделайте коммит `git add keys/crawler_project.pub && git commit -m "update pub key"`
+
+### 2. Задайте свои переменные в infra/terraform/terraform.tfvars
 
 | Переменная      | Комментарий                             | Пример                     |
 | --------------- | --------------------------------------- | -------------------------- |
@@ -10,12 +27,11 @@
 | folder_id       | id каталога                             | b1g7rnu8v9blnov6283p       |
 | subnet_id       | id подсети                              | e9b8jq70j2bafkcv156b       |
 | zone            | Зона доступности                        | ru-central1-a              |
-| public_key_path | Публичный ssh ключ для подключения к ВМ | ~/.ssh/crawler-project.pub |
 |                 |                                         |                            |
 
-Переменная `image_id` выставлена в значение `fd8fjtn3mj2kfe7h6f0r` (Ubuntu 18.04) и не предполагает замены.
+Переменная `image_id` выставлена в значение `fd8vmcue7aajpmeo39kk` (Ubuntu 20.04) и не предполагает замены.
 
-### 2. Экспортируйте ключ сервисного аккаунта Yandex Cloud в файл `~/yandex-cloud/terraform-bot-key.json"`
+### 3. Экспортируйте ключ сервисного аккаунта Yandex Cloud в файл `~/yandex-cloud/terraform-bot-key.json`
 
 [Документация YC: Создание авторизованных ключей](https://cloud.yandex.ru/docs/iam/operations/authorized-key/create)
 
@@ -24,7 +40,7 @@
 * `storage.admin`
 * `compute.admin`
 
-### 3. Создайте S3 Bucket и настройте Terraform backend
+### 4. Создайте S3 Bucket и настройте Terraform backend
 
 [Документация YC: Создание бакета](https://cloud.yandex.ru/docs/storage/operations/buckets/create)
 
@@ -32,39 +48,76 @@
 
 Создайте бакет.
 
-Создайте файл `infra/terraform/backend.tf` следующего содержания:
-```JSON
-terraform {
-    backend "s3" {
-        endpoint    = "storage.yandexcloud.net"
-        bucket      = "<BUCKET_NAME>"
-        region      = "us-east-1"
-        key         = "terraform-crawler.tfstate"
-        access_key  = "<ACCESS_KEY>"
-        secret_key  = "<SECRET_KEY>"
+Задайте свои переменные в infra/ansible/environments/prod/group_vars/all.yml
 
-        skip_region_validation      = true
-        skip_credentials_validation = true
-    }
-}
-```
+| Переменная           | Комментарий                       | Пример               |
+| -------------------- | --------------------------------- | -------------------- |
+| tf_bucket_name       | id подсети                        | e9b8jq70j2bafkcv156b |
+| tf_bucket_access_key | access key S3 бакета              | b1gaoe8gd60hmb5vcch0 |
+| tf_bucket_secret_key | secret key S3 бакета              | b1g7rnu8v9blnov6283p |
+| gitlab_root_password | Пароль root для входа в Gitlab_CI | 123qwe123            |
+| gitlab_runner_token  | Токен для регистрации runner'ов   | Dfhju39dbklbnci33cju |
+|                      |                                   |                      |
 
-### 4. Terrafrom init
-
-Перейтите в директорию *infra/terraform* и выполните команду `terraform init`
-
-## Ansible
+### 5. Запустите ansible-playbook
 
 Все действия производятся в директории *infra/ansible*
 
-### 1. Установите необходимые зависимости
+4.1 Установите необходимые зависимости
 
 `ansible-galaxy install -r requirements.yml`
 
-### 2. Задайте свои значения в переменный в vars.yml
+4.2 Запустите ansible-playbook
 
-| Переменная | Комментарий | Пример |
-|---|---|---|
-| gitlab_root_password | Пароль root для входа в Gitlab_CI | 123qwe123 |
-| gitlab_runner_token | Токен для регистрации runner'ов | Dfhju39dbklbnci33cju |
-| | | |
+`ansible-playbook playbooks/site.yml`
+
+----
+
+Примерное время выполнения плейбука = 12 min.
+После успешного выполнения плейбука будут развернуты 2 инстанса:
+
+* GitLab CI
+К GitLab CI уже подключен один runner (docker)
+
+* Мониторинг (Prometheus + Grafana)
+Prometheus уже собирает метрики с node_exporter с обоих инстансов.
+В Grafana уже предустановлен dashboard - Prometheus Node Exporter Full.
+
+----
+
+# Приложение
+
+### 1. Задайте свои переменные в GitLab CI
+
+Admin Area -> Settings -> CI/CD -> Variables
+
+| Key                  | Value                                                     | Type     | Flags             |
+| -------------------- | --------------------------------------------------------- | -------- | ----------------- |
+| terraform_bot_key    | Содержимое файла ~/yandex-cloud/terraform-bot-key.json    | Variable | Protect           |
+| crawler_project      | Содержимое файла ~/.ssh/crawler_project                   | File     | Protect           |
+| tf_bucket_access_key | access key S3 bucket (задавали ранее в окружении Ansible) | Variable | Protected, Masked |
+| tf_bucket_secret_key | secret key S3 bucket (задавали ранее в окружении Ansible) | Variable | Protected, Masked |
+|                      |                                                           |          |                   |
+
+### 2. Запуште проект в GitLab CI
+
+`git push <YOUR_GITLAB_CI_URL>/root/$(git rev-parse --show-toplevel | xargs basename).git`
+
+----
+
+После пуша в GitLab CI появится проект с названием Otus-DevOps-08-2020-Project-Work
+Запустится CI/CD Pipeline, состоящий из двух стейджей:
+* На первом стейдже выполняется две джобы, в которых поднимается приложение и запускаются тесты.
+* Если все тесты прошли успешно, становится доступна для ручного запуска джоба deploy_prod
+
+При запуске джобы deploy_prod, GitLab Runner поднимает докер контейнер в котором запускается Ansible playbook, разворачивающий приложение.
+
+Ссылка на Web UI приложения доступна в GitLab -> Проект -> Operations -> Environments -> View Deployment
+
+В процессе деплоя приложения Terraform создает инстанс в YC, само приложение запускается через docker compose.
+Prometheus начинает собирать метрики:
+* Crawler
+* UI
+* node_exporter
+
+В Grafana добавляется дашборд App Crawler, отображающий метрики приложения.
