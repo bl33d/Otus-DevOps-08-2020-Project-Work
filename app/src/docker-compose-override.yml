@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+  ui:
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd_addr:24224
+        tag: search_engine_ui
+  crawler:
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd_addr:24224
+        tag: search_engine_crawler
