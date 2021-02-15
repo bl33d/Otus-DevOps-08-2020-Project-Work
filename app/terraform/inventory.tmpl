@@ -7,3 +7,8 @@ app-host ansible_host=${ip}
 %{ for ip in instance_monitoring_ip ~}
 monitoring-host ansible_host=${ip}
 %{ endfor ~}
+
+[logging_hosts]
+%{ for ip in instance_logging_ip ~}
+logging-host ansible_host=${ip}
+%{ endfor ~}

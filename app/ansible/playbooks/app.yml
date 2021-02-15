@@ -4,6 +4,15 @@
     src: ../../src/
     dest: /srv/app
   
+- name: Change fluentd address in docker-compose
+  replace:
+    path: /srv/app/docker-compose-override.yml
+    regexp: "fluentd-address: fluentd_addr:24224"
+    replace: "fluentd-address: {{ hostvars['logging-host'].ansible_host }}:24224"
+
 - name: Deploy app images with docker-compose
   docker_compose:
     project_src: /srv/app
+    files: 
+      - docker-compose.yml
+      - docker-compose-override.yml

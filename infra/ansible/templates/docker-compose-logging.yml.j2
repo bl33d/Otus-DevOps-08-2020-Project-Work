@@ -1,0 +1,33 @@
+version: '3'
+services:
+
+  fluentd:
+    build:
+      context: ./fluentd
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    networks:
+      - front_net
+
+  elasticsearch:
+    image: elasticsearch:7.4.0
+    environment:
+      - ELASTIC_CLUSTER=false
+      - CLUSTER_NODE_MASTER=true
+      - CLUSTER_MASTER_NODE_NAME=es01
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+    networks:
+      - front_net
+
+  kibana:
+    image: kibana:7.4.0
+    ports:
+      - "5601:5601"
+    networks:
+      - front_net
+
+networks:
+  front_net:

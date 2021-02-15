@@ -7,3 +7,8 @@ gitlab-host ansible_host=${ip}
 %{ for ip in instance_ip_monitoring ~}
 monitoring-host ansible_host=${ip}
 %{ endfor ~}
+
+[logging_hosts]
+%{ for ip in instance_ip_logging ~}
+logging-host ansible_host=${ip}
+%{ endfor ~}

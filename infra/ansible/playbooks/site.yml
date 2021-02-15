@@ -58,3 +58,11 @@
   tasks:
     - name: Deploy monitoring system (Prome and Grafana)
       include_tasks: monitoring.yml
+
+- name: Deploy logging
+  hosts: logging_hosts
+  become: true
+
+  tasks:
+    - name: Deploy logging system (EFK)
+      include_tasks: logging.yml
